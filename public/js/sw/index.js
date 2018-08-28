@@ -1,8 +1,8 @@
-var staticCacheName = 'wittr-static-v2';
+var staticCacheName = 'wittr-static-v3';
 
-self.addEventListener('install', function(event) {
+self.addEventListener('install', function (event) {
   event.waitUntil(
-    caches.open(staticCacheName).then(function(cache) {
+    caches.open(staticCacheName).then(function (cache) {
       return cache.addAll([
         '/',
         'js/main.js',
@@ -15,24 +15,24 @@ self.addEventListener('install', function(event) {
   );
 });
 
-self.addEventListener('activate', function(event) {
+self.addEventListener('activate', function (event) {
   event.waitUntil(
-    caches.keys().then(function(cacheNames) {
+    caches.keys().then(function (cacheNames) {
       return Promise.all(
-        cacheNames.filter(function(cacheName) {
+        cacheNames.filter(function (cacheName) {
           return cacheName.startsWith('wittr-') &&
-                 cacheName != staticCacheName;
-        }).map(function(cacheName) {
+            cacheName != staticCacheName;
+        }).map(function (cacheName) {
           return caches.delete(cacheName);
         })
       );
     })
   );
-});
+});//
 
-self.addEventListener('fetch', function(event) {
+self.addEventListener('fetch', function (event) {
   event.respondWith(
-    caches.match(event.request).then(function(response) {
+    caches.match(event.request).then(function (response) {
       return response || fetch(event.request);
     })
   );
@@ -40,3 +40,7 @@ self.addEventListener('fetch', function(event) {
 
 // TODO: listen for the "message" event, and call
 // skipWaiting if you get the appropriate message
+self.addEventListener('message', function (event) {
+  if (event.data.message === 'refresh')
+    self.skipWaiting();
+});
